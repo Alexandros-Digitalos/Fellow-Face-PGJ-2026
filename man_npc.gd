@@ -6,7 +6,7 @@ var next:int;
 enum States{WANDERING, DISGUSTED,TASK,CORRIDOR,TRANSITION,FINISH};
 var task = [3,1,2];
 var task_num = 0;
-var state:States = States.CORRIDOR;
+var state:States = States.WANDERING;
 var speed:float = 30
 var disgusted: bool
 var destination: Vector2
@@ -57,31 +57,34 @@ func _process(delta: float) -> void:
 		States.TASK:
 			pass
 func _ready() -> void:
+	main.player.use_item.connect($ToleranceTimer.start)
 	goal = task[task_num]
 	for area in $MouseInteraction.get_overlapping_areas():
 		_on_mouse_interaction_area_entered(area)
-	next_location()
+	#next_location()
 	$ToleranceTimer.wait_time = tolerance/100 * 1.5
 	originalPos = global_position
 	var rand_offset: Vector2 = Vector2(randf_range(-5, 5), randf_range(-2, 5.5))
 	global_position += rand_offset
 	cooldown_timer.timeout.connect(walk_around)
 	#$playerClose.body_entered.connect(check_if_player)
-	#walk_around()
-	set_tolerance()
+	walk_around()
+	
+	#set_tolerance()
 	
 func set_tolerance():
 	pass
-func check_if_player(node: Node2D) -> void:
-	#print(node.name)
-	print("check_if_player")
-	if main.player != null && node.name == "Player" && !main.player.use_item.is_connected($ToleranceTimer.start):
-		main.player.use_item.connect($ToleranceTimer.start)
+#func check_if_player(node: Node2D) -> void:
+#	#print(node.name)
+#	print("check_if_player")
+#	if main.player != null && node.name == "Player" && !main.player.use_item.is_connected($ToleranceTimer.start):
+#		main.player.use_item.connect($ToleranceTimer.start)
 
 func walk_around() -> void:
-	find_destination()
-	turn_sprite()
-	velocity = speed*dir
+	if state == States.WANDERING:
+		find_destination()
+		turn_sprite()
+		velocity = speed*dir
 	#print(dir)
 	#elif state == States.DISGUSTED:
 		#turn_sprite_digusted()
@@ -119,7 +122,7 @@ func find_destination() -> void:
 func start_cooldown(quick: bool) -> void:
 	if main.random.randi_range(0,5) == 5:
 		task_num = 0;
-		task = main.tasks[randi_range(0,main.tasks.size())]
+		task = main.tasks[randi_range(0,main.tasks.size()-1)]
 	else:
 		if quick:
 			cooldown_timer.wait_time = randf_range(0.5, 1)
@@ -202,13 +205,12 @@ func _on_disgusted_timer_timeout() -> void:
 	#change state
 	velocity = Vector2.ZERO
 	state = States.WANDERING
+	walk_around()
 
 func _on_body_exited(body: Node2D) -> void:
 	if main.player != null:
 		if body == main.player:
 			closeToPlayer = false
-			if main.player.use_item.is_connected($ToleranceTimer.start):
-				main.player.use_item.disconnect($ToleranceTimer.start)
 			if selected == true:
 				$Man.set_instance_shader_parameter("active", false)
 				main.selected = false
@@ -237,14 +239,13 @@ func _on_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
 
 func _on_body_entered(body: Node2D) -> void:
 	if main.player != null:
-		if body == main.player && !main.player.use_item.is_connected($ToleranceTimer.start):
+		if body == main.player:
 			closeToPlayer = true
-			main.player.use_item.connect($ToleranceTimer.start)
-			#main.player.interaction.connect(reaction)
 
 func _on_tolerance_timer_timeout() -> void:
 	print(1)
-	reaction()
+	if closeToPlayer:
+		reaction()
 func next_location():
 	print("next")
 	#var min = main.map.distance[corridor][goal]-1;
