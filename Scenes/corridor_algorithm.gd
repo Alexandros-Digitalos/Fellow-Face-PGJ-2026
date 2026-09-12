@@ -37,7 +37,7 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	pass
 
 func find_distance(from:Node2D,to:Node2D,num:int,recursive:int,first = false):
@@ -61,19 +61,19 @@ func find_distance(from:Node2D,to:Node2D,num:int,recursive:int,first = false):
 		brcorridors.append(br.corridor.id)
 		output = find_distance(br.corridor,to,num,recursive)
 		outputs.append(output)
-	var min:int = max_recursion;
+	var _min:int = max_recursion;
 	var next:int = -1;
 	for i in outputs.size():
-		if outputs[i] < min:
+		if outputs[i] < _min:
 			next = brcorridors[i]
-			min = outputs[i]
+			_min = outputs[i]
 	#var min :int= outputs.min();
 	
 	print("from: ",from," to: ",to," outputs: ", outputs)
-	var breakPos = from.get_node("breaks").get_children()[outputs.find(min)].global_position;
+	var breakPos = from.get_node("breaks").get_children()[outputs.find(_min)].global_position;
 	if first :
-		print("min ",min)
+		print("min ",_min)
 		breakMatrix[from.id][to.id] ={"x":breakPos.x,"y":breakPos.y};
-		distanceMatrix[from.id][to.id] = min;
+		distanceMatrix[from.id][to.id] = _min;
 		nextMatrix[from.id][to.id] = next;
-	return min
+	return _min

@@ -23,7 +23,7 @@ var originalPos:Vector2
 @onready var disgusted_timer: Timer = %DisgustedTimer
 @onready var tolerance: float = randf_range(1, 100)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	match state:
 		States.WANDERING:
 			#print(dir)
@@ -102,22 +102,10 @@ func find_destination() -> void:
 	var offset := Vector2(
 		randf_range(-search_radius, search_radius),
 		randf_range(-search_radius, search_radius))
-
-	#if global_position.y < min_y:
-		#offset.y = abs(search_radius)
-	#elif global_position.y > max_y:
-		#offset.y = -abs(search_radius)
-#
-	#if global_position.x < min_x:
-		#offset.x = abs(search_radius)
-	#elif global_position.x > max_x:
-		#offset.x = -abs(search_radius)
-
 	destination = global_position + offset
 	destination.x = clamp(destination.x, min_x, max_x)
 	destination.y = clamp(destination.y, min_y, max_y)
 
-	#print(global_position)
 
 func start_cooldown(quick: bool) -> void:
 	if main.random.randi_range(0,5) == 5:
@@ -132,72 +120,24 @@ func start_cooldown(quick: bool) -> void:
 
 func turn_sprite() -> void:
 	dir = (destination - global_position).normalized()
-	var angle = dir.angle()
-	var cos_angle = rad_to_deg(cos(angle))
-	var sin_angle = rad_to_deg(sin(angle))
-	var abs_sin = abs(sin_angle)
-	var abs_cos = abs(cos_angle)
-	var dir_name: String
-
-	if abs_cos > abs_sin: # if direction is mostly to the right
-		if cos_angle > 0:
+	
+	if abs(dir.x) > abs(dir.y): # if direction is mostly to the right
+		if dir.x > 0:
 			man.frame = 1#right
 		else:
 			man.frame = 2#left
 	else:
-		if sin_angle < 0:
+		if dir.y < 0:
 			man.frame = 3#up
 		else:
 			man.frame = 0#down
-	#match dir_name:
-		#"down":
-			#man.frame = 0
-		#"right":
-			#man.frame = 1
-		#"left":
-			#man.frame = 2
-		#"up":
-			#man.frame = 3
-
-func turn_sprite_digusted() -> void:
-	dir = (global_position - main.player.global_position).normalized()
-	var angle = dir.angle()
-	var cos_angle = rad_to_deg(cos(angle))
-	var sin_angle = rad_to_deg(sin(angle))
-	var abs_sin = abs(sin_angle)
-	var abs_cos = abs(cos_angle)
-	var dir_name: String
-
-	if abs_cos > abs_sin: # if direction is mostly to the right
-		if cos_angle > 0:
-			dir_name = "right"
-		else:
-			dir_name = "left"
-	else:
-		if sin_angle < 0:
-			dir_name = "up"
-		else:
-			dir_name = "down"
-	match dir_name:
-		"down":
-			man.frame = 0
-			#destination = global_position + Vector2(search_radius* [-1,1].pick_random(), search_radius)*2
-		"right":
-			man.frame = 1
-			#destination = global_position + Vector2(search_radius, search_radius * [-1,1].pick_random())*2
-		"left":
-			man.frame = 2
-			#destination = global_position + Vector2(-search_radius, search_radius * [-1,1].pick_random())*2
-		"up":
-			man.frame = 3
-			#destination = global_position + Vector2(search_radius* [-1,1].pick_random(), -search_radius)*2
 	
 func reaction() -> void:
 	print("reaction")
 	got_disgusted.emit()
 	state = States.DISGUSTED;
 	main.belonging -= 1;
-	turn_sprite_digusted()
+	turn_sprite()
 	velocity = speed*dir
 	disgusted_timer.start()
 
@@ -208,7 +148,7 @@ func _on_disgusted_timer_timeout() -> void:
 	walk_around()
 
 func _on_body_exited(body: Node2D) -> void:
-	if main.player != null:
+	#if main.player != null:
 		if body == main.player:
 			closeToPlayer = false
 			if selected == true:
@@ -228,7 +168,7 @@ func _on_mouse_exited() -> void:
 		main.selected = false
 		selected = false
 
-func _on_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
+func _on_input_event(_viewport: Node, _event: InputEvent, _shape_idx: int) -> void:
 	if Input.is_action_just_pressed("interact") && selected:
 		main.player.unmask()
 		selected = false
@@ -238,7 +178,7 @@ func _on_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
 		main.belonging -= 50
 
 func _on_body_entered(body: Node2D) -> void:
-	if main.player != null:
+	#if main.player != null:
 		if body == main.player:
 			closeToPlayer = true
 
