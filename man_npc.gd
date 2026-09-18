@@ -8,13 +8,12 @@ var task = [3,1,2];
 var task_num = 0;
 var state:States = States.WANDERING;
 var speed:float = 30
-var disgusted: bool
 var destination: Vector2
 var dir: Vector2 = Vector2.ZERO
-var player_pos: Vector2
-var player: Player
+static var player: Player
 var selected = false
-var closeToPlayer = false
+#used for selected
+#var closeToPlayer = false
 var originalPos:Vector2
 @export var walk_time: float = 1
 @export var search_radius: float = 30
@@ -41,7 +40,7 @@ func _process(_delta: float) -> void:
 			if global_position.distance_to(destination) < 10:
 				task_num += 1;
 				print("task num ", task_num, " ",task.size()-1)
-				if task_num == (task.size()-1):
+				if task_num >= (task.size()-1):
 					state = States.WANDERING
 					task_num = 0;
 				else:
@@ -57,7 +56,8 @@ func _process(_delta: float) -> void:
 		States.TASK:
 			pass
 func _ready() -> void:
-	main.player.use_item.connect($ToleranceTimer.start)
+	player= main.player;
+	player.use_item.connect(checkWhetherToReact)
 	goal = task[task_num]
 	for area in $MouseInteraction.get_overlapping_areas():
 		_on_mouse_interaction_area_entered(area)
@@ -71,7 +71,10 @@ func _ready() -> void:
 	walk_around()
 	
 	#set_tolerance()
-	
+
+func checkWhetherToReact():
+	if closeForReaction():
+		$ToleranceTimer.start()
 func set_tolerance():
 	pass
 #func check_if_player(node: Node2D) -> void:
@@ -83,6 +86,7 @@ func set_tolerance():
 func walk_around() -> void:
 	if state == States.WANDERING:
 		find_destination()
+		dir = (destination - global_position).normalized()
 		turn_sprite()
 		velocity = speed*dir
 	#print(dir)
@@ -119,8 +123,6 @@ func start_cooldown(quick: bool) -> void:
 		cooldown_timer.start()
 
 func turn_sprite() -> void:
-	dir = (destination - global_position).normalized()
-	
 	if abs(dir.x) > abs(dir.y): # if direction is mostly to the right
 		if dir.x > 0:
 			man.frame = 1#right
@@ -137,6 +139,7 @@ func reaction() -> void:
 	got_disgusted.emit()
 	state = States.DISGUSTED;
 	main.belonging -= 1;
+	dir = (global_position - player.position).normalized()
 	turn_sprite()
 	velocity = speed*dir
 	disgusted_timer.start()
@@ -149,15 +152,15 @@ func _on_disgusted_timer_timeout() -> void:
 
 func _on_body_exited(body: Node2D) -> void:
 	#if main.player != null:
-		if body == main.player:
-			closeToPlayer = false
-			if selected == true:
+		if body == player && selected:
 				$Man.set_instance_shader_parameter("active", false)
 				main.selected = false
 				selected = false
+				$playerClose.monitoring = true;
 
 func _on_mouse_entered() -> void:
-	if main.selected == false && closeToPlayer:
+	if main.selected == false && closeForReaction():
+		$playerClose.monitoring = true;
 		$Man.set_instance_shader_parameter("active", true)
 		main.selected = true
 		selected = true
@@ -170,21 +173,20 @@ func _on_mouse_exited() -> void:
 
 func _on_input_event(_viewport: Node, _event: InputEvent, _shape_idx: int) -> void:
 	if Input.is_action_just_pressed("interact") && selected:
-		main.player.unmask()
+		player.unmask()
 		selected = false
 		main.selected = false
 		reaction()
 		print("a",self)
 		main.belonging -= 50
 
-func _on_body_entered(body: Node2D) -> void:
-	#if main.player != null:
-		if body == main.player:
-			closeToPlayer = true
-
+#func _on_body_entered(body: Node2D) -> void:
+	##if main.player != null:
+		#if body == 'main.player':
+			#closeToPlayer = true
+func closeForReaction() -> bool:
+	return position.distance_squared_to(player.position) < 25600
 func _on_tolerance_timer_timeout() -> void:
-	print(1)
-	if closeToPlayer:
 		reaction()
 func next_location():
 	print("next")
