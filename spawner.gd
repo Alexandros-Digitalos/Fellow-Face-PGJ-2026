@@ -12,6 +12,7 @@ func _ready() -> void:
 	print(position)
 	for i in main.random.randi_range(_min,_max):
 		spawn()
+	spawn_friend()
 func spawn():
 	random_vector = Vector2(main.random.randf_range(-radius,radius),main.random.randf_range(-radius,radius))
 	var instance = enemy.instantiate()

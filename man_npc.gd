@@ -15,8 +15,8 @@ var selected = false
 #used for selected
 #var closeToPlayer = false
 var originalPos:Vector2
-@export var walk_time: float = 1
-@export var search_radius: float = 30
+#@export var walk_time: float = 1
+const search_radius: float = 30
 @onready var cooldown_timer: Timer = %"Cooldown Timer"
 @onready var man: Sprite2D = %Man
 @onready var disgusted_timer: Timer = %DisgustedTimer
@@ -62,7 +62,7 @@ func _ready() -> void:
 	for area in $MouseInteraction.get_overlapping_areas():
 		_on_mouse_interaction_area_entered(area)
 	#next_location()
-	$ToleranceTimer.wait_time = tolerance/100 * 1.5
+	$ToleranceTimer.wait_time =set_tolerance()
 	originalPos = global_position
 	var rand_offset: Vector2 = Vector2(randf_range(-5, 5), randf_range(-2, 5.5))
 	global_position += rand_offset
@@ -70,13 +70,13 @@ func _ready() -> void:
 	#$playerClose.body_entered.connect(check_if_player)
 	walk_around()
 	
-	#set_tolerance()
+	
 
 func checkWhetherToReact():
 	if closeForReaction():
 		$ToleranceTimer.start()
-func set_tolerance():
-	pass
+func set_tolerance()->float: 
+	return tolerance/100 * 1.5
 #func check_if_player(node: Node2D) -> void:
 #	#print(node.name)
 #	print("check_if_player")
