@@ -1,10 +1,10 @@
 class_name SceneSwitcher extends Node2D
 @onready var music := $Music;
 @onready var sounds := $sounds
-const min:float= -60;
-const max:float= 0;
-var volume0 := min;
-var volume1 := max;
+const _min:float= -60;
+const _max:float= 0;
+var volume0 := _min;
+var volume1 := _max;
 var playing = false
 
 var playSound = true
@@ -56,10 +56,10 @@ func lose():
 	playing = false
 	music.play()
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	if main.belonging <= 50 && playing:
-		volume0 = lerp(volume0,max,0.01)
-		volume1 = lerp(volume1,min,0.01)
+		volume0 = lerp(volume0,_max,0.01)
+		volume1 = lerp(volume1,_min,0.01)
 		$Music.stream.set_sync_stream_volume(0,volume0)
 		$Music.stream.set_sync_stream_volume(1,volume1)
 

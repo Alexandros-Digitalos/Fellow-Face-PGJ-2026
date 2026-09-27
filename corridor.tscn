@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://baca4kv8lbdhh"]
+
+[ext_resource type="Script" uid="uid://cl0hftwa568cq" path="res://corridor.gd" id="1_jm2rx"]
+
+[node name="Corridor" type="Node2D" unique_id=1020608659]
+script = ExtResource("1_jm2rx")

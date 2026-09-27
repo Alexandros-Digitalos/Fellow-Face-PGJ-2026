@@ -23,6 +23,8 @@ collision_mask = 4
 script = ExtResource("1_6mhi7")
 
 [node name="ToleranceTimer" type="Timer" parent="." unique_id=1711778206]
+wait_time = 5.0
+one_shot = true
 
 [node name="Cooldown Timer" type="Timer" parent="." unique_id=402413482]
 unique_name_in_owner = true
@@ -42,10 +44,11 @@ hframes = 4
 
 [node name="DisgustedTimer" type="Timer" parent="." unique_id=311554407]
 unique_name_in_owner = true
-wait_time = 5.0
+wait_time = 3.0
 one_shot = true
 
 [node name="playerClose" type="Area2D" parent="." unique_id=852689918]
+monitoring = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="playerClose" unique_id=107897889]
 shape = SubResource("CircleShape2D_ubqif")
@@ -63,6 +66,7 @@ rect = Rect2(-12, -32, 25, 63)
 [connection signal="timeout" from="DisgustedTimer" to="." method="_on_disgusted_timer_timeout"]
 [connection signal="body_entered" from="playerClose" to="." method="_on_body_entered"]
 [connection signal="body_exited" from="playerClose" to="." method="_on_body_exited"]
+[connection signal="area_entered" from="MouseInteraction" to="." method="_on_mouse_interaction_area_entered"]
 [connection signal="input_event" from="MouseInteraction" to="." method="_on_input_event"]
 [connection signal="mouse_entered" from="MouseInteraction" to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="MouseInteraction" to="." method="_on_mouse_exited"]

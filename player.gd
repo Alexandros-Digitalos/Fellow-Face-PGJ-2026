@@ -11,7 +11,7 @@ var items: Array[bool] = [false, false, false]
 func _ready() -> void:
 	main.player = self
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	direction.x = Input.get_axis("left","right")
 	direction.y = Input.get_axis("up","down")
 	if(direction != Vector2.ZERO && main.SceneSwitcher.playSound):
@@ -46,8 +46,8 @@ func unmask() -> void:
 	head.frame_coords.y = 1
 	speed = base_speed
 
-func _on_man_npc_body_exited(body: Node2D) -> void:
-	pass # Replace with function body.
+#func _on_man_npc_body_exited(body: Node2D) -> void:
+	#pass # Replace with function body.
 
 func interact():
 	interaction.emit()
@@ -63,6 +63,7 @@ func changeClothes(cloth:String):
 
 func _input(event: InputEvent) -> void:
 	if event.is_action("use"):
+		print("use")
 		if items[0]:
 			use_item.emit()
 			$Head.frame_coords.y = 2
